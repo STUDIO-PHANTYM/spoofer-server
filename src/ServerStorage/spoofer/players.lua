@@ -126,14 +126,14 @@ function players.forceRemove(player: Player): t.SPlayer?
 	end
 end
 
--- Given a player, returns a spoofer instance if they're actually in the game based on their username
+-- Given a username, returns a spoofer instance if they're actually in the game
 -- 
 -- @since v1.0
 function players.getRealPlayerFromUsername(realUsername: string): t.SPlayer?
 	return players.getRealPlayerFromId(Players:GetUserIdFromNameAsync(realUsername))
 end
 
--- Given a player, returns a spoofer instance if they're actually in the game based on their UserId
+-- Given a UserId, returns a spoofer instance if they're actually in the game
 -- 
 -- @since v1.0
 function players.getRealPlayerFromId(realId: number): t.SPlayer?
