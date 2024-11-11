@@ -138,7 +138,7 @@ end
 -- @since v1.0
 function players.getRealPlayerFromId(realId: number): t.SPlayer?
 	for k, v: t.SPlayer in pairs(pub) do
-		if v.isFake and v:GetInstance().UserId == realId then
+		if v:GetInstance().UserId == realId then
 			return v
 		end
 	end
