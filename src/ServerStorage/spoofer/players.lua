@@ -126,4 +126,24 @@ function players.forceRemove(player: Player): t.SPlayer?
 	end
 end
 
+-- Given a player, returns a spoofer instance if they're actually in the game based on their username
+-- 
+-- @since v1.0
+function players.getRealPlayerFromUsername(realUsername: string): t.SPlayer?
+	return players.getRealPlayerFromId(Players:GetUserIdFromNameAsync(realUsername))
+end
+
+-- Given a player, returns a spoofer instance if they're actually in the game based on their UserId
+-- 
+-- @since v1.0
+function players.getRealPlayerFromId(realId: number): t.SPlayer?
+	for k, v: t.SPlayer in pairs(pub) do
+		if v.isFake and v:GetInstance().UserId == realId then
+			return v
+		end
+	end
+
+	return
+end
+
 return players
