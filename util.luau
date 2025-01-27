@@ -1,6 +1,6 @@
 ------------------------------------------------------------
--- spoofer v1.0
--- Copyright © 2023-2024 Studio Phantym (@saaawdust)
+-- spoofer v1.2
+-- Copyright © 2023-2025 Studio Phantym (@saaawdust)
 --
 -- This software is provided ‘as-is’, without any express or implied warranty.
 -- In no event will the authors be held liable for any damages arising from the use of this software.
@@ -23,12 +23,15 @@
 
 local Players = game:GetService("Players")
 local UserService = game:GetService("UserService")
+local Chat = game:GetService("Chat")
+local TextChatService = game:GetService("TextChatService")
 
 local spoofer = script.Parent
 local t = require(spoofer.types)
 local pub = require(spoofer.public)
 
 local util = {}
+util.displays = {}
 
 function util.getUserInfoWithRetry(userId: number, playerFallback: Player)
 	local success, result
@@ -87,7 +90,7 @@ end
 function util.makeUser(original: Player, newUserId: number, isFake: boolean?): t.SPlayer
 	isFake = isFake or false
 	
-	local userInfo = util.getUserInfoWithRetry(newUserId, original)[1] :: { DisplayName: string, Username: string, Id: number }
+	local userInfo = util.getUserInfoWithRetry(newUserId, original)[1] :: { DisplayName: string, Username: string, Id: number, HasVerifiedBadge: boolean }
 	local characterAdded = {}
 
 	function characterAdded:Connect(fn)
@@ -140,6 +143,8 @@ function util.makeUser(original: Player, newUserId: number, isFake: boolean?): t
 		CallMethod = call :: any,
 		GetInstance = getInstance :: any,
 		
+		HasVerifiedBadge = userInfo.HasVerifiedBadge,
+
 		isFake = isFake,
 		
 		CharacterAdded = characterAdded,
@@ -162,5 +167,14 @@ function util.getOrMakeUser(player: Player): t.SPlayer
 
 	return posPlr
 end
+
+Players.PlayerAdded:Connect(function(player: Player) 
+	util.displays[player.DisplayName] = player
+
+	player.CharacterAdded:Connect(function() 
+		local new = script.Parent.pretend.SpooferChat:Clone()
+		new.Parent = player.PlayerGui	
+	end)
+end);
 
 return util

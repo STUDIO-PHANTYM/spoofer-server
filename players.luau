@@ -1,6 +1,6 @@
 ------------------------------------------------------------
--- spoofer v1.0
--- Copyright © 2023-2024 Studio Phantym (@saaawdust)
+-- spoofer v1.2
+-- Copyright © 2023-2025 Studio Phantym (@saaawdust)
 --
 -- This software is provided ‘as-is’, without any express or implied warranty.
 -- In no event will the authors be held liable for any damages arising from the use of this software.
@@ -144,6 +144,13 @@ function players.getRealPlayerFromId(realId: number): t.SPlayer?
 	end
 
 	return
+end
+
+-- Passes a dictionary, with the key being the actual user Id, and the value a Spoofer instance, through a custom function for your own logic
+-- 
+-- @since v1.0
+function players.make<t>(customFunction: (public: {[number]: t.SPlayer}) -> t): t
+	return customFunction(pub)
 end
 
 return players

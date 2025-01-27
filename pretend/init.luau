@@ -1,6 +1,6 @@
 ------------------------------------------------------------
--- spoofer v1.0
--- Copyright © 2023-2024 Studio Phantym (@saaawdust)
+-- spoofer v1.2
+-- Copyright © 2023-2025 Studio Phantym (@saaawdust)
 --
 -- This software is provided ‘as-is’, without any express or implied warranty.
 -- In no event will the authors be held liable for any damages arising from the use of this software.
@@ -27,44 +27,47 @@ local spoofer = script.Parent
 local t = require(spoofer.types)
 local pub = require(spoofer.public)
 local util = require(spoofer.util)
+local fnStore = require(spoofer.fnStore)
 
-return function(spooferRemote: RemoteEvent)
-	local pretend = {}
-	
-	-- The user that will be spoofed. Takes a username or a UserId as an input
-	-- 
+local pretend = {}
+
+-- The user that will be spoofed. Takes a username or a UserId as an input
+--
+-- @since v1.0
+function pretend.being(userId: number | string): t.SpoofConstructor
+	if type(userId) == "string" then
+		userId = Players:GetUserIdFromNameAsync(userId)
+	end
+
+	-- The user that will be spoofing.
+	--
 	-- @since v1.0
-	function pretend.being(userId: number | string): t.SpoofConstructor
-		if type(userId) == "string" then
-			userId = Players:GetUserIdFromNameAsync(userId)
-		end
-		
-		-- The user that will be spoofing.
-		-- 
-		-- @since v1.0
-		local function asFunc(player: Player)
-			local user = util.makeUser(player, userId :: number, true)
-			pub[player.UserId] = user
-			
-			return user
-		end
-		
-		return {
-			as = asFunc,
-		}
-	end
-	
-	function pretend.toBeSelf(player: Player): t.SPlayer
-		local beforeUser: t.SPlayer = pub[player.UserId]
-		if beforeUser and beforeUser.CharacterEvent then
-			beforeUser.CharacterEvent:Disconnect()
+	local function asFunc(player: Player)
+		if fnStore.onSpoof and typeof(fnStore.onSpoof) == "function" then
+			fnStore.onSpoof(player, userId)
 		end
 
-		local newUser = util.makeUser(player, player.UserId, false)
-		pub[player.UserId] = newUser
+		local user = util.makeUser(player, userId :: number, true)
+		pub[player.UserId] = user
 
-		return newUser
+		return user
 	end
 
-	return pretend
+	return {
+		as = asFunc,
+	}
 end
+
+function pretend.toBeSelf(player: Player): t.SPlayer
+	local beforeUser: t.SPlayer = pub[player.UserId]
+	if beforeUser and beforeUser.CharacterEvent then
+		beforeUser.CharacterEvent:Disconnect()
+	end
+
+	local newUser = util.makeUser(player, player.UserId, false)
+	pub[player.UserId] = newUser
+
+	return newUser
+end
+
+return pretend

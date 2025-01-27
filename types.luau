@@ -1,6 +1,6 @@
 ------------------------------------------------------------
--- spoofer v1.0
--- Copyright © 2023-2024 Studio Phantym (@saaawdust)
+-- spoofer v1.2
+-- Copyright © 2023-2025 Studio Phantym (@saaawdust)
 --
 -- This software is provided ‘as-is’, without any express or implied warranty.
 -- In no event will the authors be held liable for any damages arising from the use of this software.
@@ -99,6 +99,8 @@ export type SPlayer = {
 	PlayerGui: PlayerGui,
 	Backpack: Backpack,
 
+	HasVerifiedBadge: boolean,
+
 	GetCharacter: () -> Model?,
 	GetProperty:<T>(self: SPlayer, name: PlayerProps) -> T?,
 	SetProperty:<T>(self: SPlayer,name: PlayerProps, value: T) -> nil,
@@ -109,6 +111,11 @@ export type SPlayer = {
 	CharacterRemoving: Connection<Model, nil, Model>,
 
 	isFake: boolean,
+}
+
+export type LoadableCharacter = Model & { Head: BasePart, Humanoid: Humanoid }
+export type VirtualPlayer = {
+	Chat: (self: VirtualPlayer, string: string) -> ()
 }
 
 return nil

@@ -1,6 +1,6 @@
 ------------------------------------------------------------
--- spoofer v1.0
--- Copyright © 2023-2024 Studio Phantym (@saaawdust)
+-- spoofer v1.2
+-- Copyright © 2023-2025 Studio Phantym (@saaawdust)
 --
 -- This software is provided ‘as-is’, without any express or implied warranty.
 -- In no event will the authors be held liable for any damages arising from the use of this software.

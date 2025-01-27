@@ -1,6 +1,6 @@
 ------------------------------------------------------------
--- spoofer v1.0
--- Copyright © 2023-2024 Studio Phantym (@saaawdust)
+-- spoofer v1.2
+-- Copyright © 2023-2025 Studio Phantym (@saaawdust)
 --
 -- This software is provided ‘as-is’, without any express or implied warranty.
 -- In no event will the authors be held liable for any damages arising from the use of this software.
@@ -25,13 +25,11 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local pub = require(script.public)
-local GetColor = require(script.GetColor)
+local virtual = require(script.virtualPlayer)
 local util = require(script.util)
 local players = require(script.players)
 local pretend = require(script.pretend)
 local fnStore = require(script.fnStore)
-
-local displays = {}
 
 local spooferRemote = ReplicatedStorage:FindFirstChild("SpooferReplicated")
 local spooferChatRemote = ReplicatedStorage:FindFirstChild("SpooferChat")
@@ -42,8 +40,6 @@ if not spooferRemote then
 	spooferRemote.Parent = ReplicatedStorage
 	spooferRemote.Name = "SpooferReplicated"
 end
-
-local pretendInstance = pretend(spooferRemote)
 
 if not spooferClient then
 	spooferClient = Instance.new("RemoteEvent")
@@ -59,6 +55,7 @@ if not spooferClient then
 			PlayerGui = new.PlayerGui,
 			Backpack = new.Backpack,
 
+			HasVerifiedBadge = new.HasVerifiedBadge,
 			isFake = new.isFake
 		}
 	end
@@ -94,7 +91,7 @@ if not spooferClient then
 			local result = onRequested(plr, userId)
 
 			if result then
-				pretendInstance.being(userId).as(plr)
+				pretend.being(userId).as(plr)
 			end
 
 			return result ~= false
@@ -111,32 +108,22 @@ if not spooferChatRemote then
 	spooferChatRemote.Parent = ReplicatedStorage
 	spooferChatRemote.Name = "SpooferChat"
 
-	Players.PlayerAdded:Connect(function(player: Player) 
-		displays[player.DisplayName] = player
-
-		player.CharacterAdded:Connect(function(character: Model) 
-			local new = script.pretend.SpooferChat:Clone()
-			new.Parent = player.PlayerGui	
-		end)
-	end);
-
-	(spooferChatRemote :: RemoteEvent).OnServerEvent:Connect(function(player: Player, msg: string) 
+	(spooferChatRemote :: RemoteEvent).OnServerEvent:Connect(function(player: Player, msg: string, text: string) 
+		
 		local displayName = string.split(msg, ":")[1];
-		local plr = displays[displayName]
+		local plr = util.displays[displayName]
 		local userId = plr.UserId
 		local fakePlr = pub[userId]
-
-		if userId and fakePlr then
-			local col = GetColor(Players:GetNameFromUserIdAsync(fakePlr.UserId));
-			(spooferChatRemote :: RemoteEvent):FireClient(player, `<font color = \"rgb({math.floor(col.R*255)}, {math.floor(col.G*255)}, {math.floor(col.B*255)})\">{util.getUserInfoWithRetry(fakePlr.UserId, plr)[1].DisplayName}:</font>`)
+		
+		local msg, text = fnStore.onPlayerChat(player, fakePlr, msg, text)
+		if msg or text then
+			(spooferChatRemote :: RemoteEvent):FireClient(player, msg, text)
 		end
-
-		return msg
 	end)
 end
 
 return {
-	pretend = pretendInstance,
+	pretend = pretend,
 	remotes = require(script.remotes),
 	types = require(script.types),
 	players = players,
